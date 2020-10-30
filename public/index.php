@@ -1,11 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>myday</title>
-</head>
-<body>
-    <h1>Welcome to myday</h1>
-</body>
-</html>
+<?php
+require("internal/router/Router.php");
+
+$router = new Router();
+
+// $router->use(function($request, $response) {
+// 
+// });
+
+$router->get("/hello", function($request, $response) {
+    $name = $request->getQueryParameter("name");
+    $response->send("Hello $name");
+});
+
+$router->get("/test/(\w+)", function($request, $response) {
+    ob_start();
+    var_dump($request);
+    $content = ob_get_clean();
+    $response->send($content);
+});
+
+$router->run();
+?>
