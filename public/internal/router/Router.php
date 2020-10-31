@@ -42,8 +42,9 @@ class Router {
 
     private function handleRoute($route) {
         try {
-            $queryParameters = $this->getQueryParameters();
-            return $route->handle($queryParameters);
+            $request = new Request();
+            $request->setQueryParameters($this->getQueryParameters());
+            return $route->handle($request);
         } catch (Exception $e) {
             return $this->getErrorResponse(500, $e->getMessage());
         } 
