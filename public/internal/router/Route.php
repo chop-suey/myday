@@ -27,9 +27,8 @@ class Route {
         return $match;
     }
 
-    public function handle($request) {
+    public function handle($request, $response) {
         $request->setRouteParameters($this->parameters);
-        $response = new Response();
         $this->getHandler()($request, $response);
         return $response;
     }

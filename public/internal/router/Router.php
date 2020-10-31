@@ -44,7 +44,11 @@ class Router {
         try {
             $request = new Request();
             $request->setQueryParameters($this->getQueryParameters());
-            return $route->handle($request);
+            $response = new Response();
+            $this->runMiddlewares($request, $response);
+            return $response->isSent()
+                ? $response
+                : $route->handle($request, $response);
         } catch (Exception $e) {
             return $this->getErrorResponse(500, $e->getMessage());
         } 
@@ -91,13 +95,14 @@ class Router {
         return $_SERVER["REQUEST_METHOD"];
     }
 
-    // private function runMiddlewares() {
-    //     foreach($this->middlewares as $middleware) {
-    //         if (!$middleware($path, )) {
-                
-    //         }
-    //     }
-    // }
+    private function runMiddlewares($request, $response) {
+        foreach($this->middlewares as $middleware) {
+            $middleware($request, $response);
+            if ($response->isSent()) {
+                break;
+            }
+        }
+    }
 
     private function sendResponse($response) {
         http_response_code($response->getCode());
