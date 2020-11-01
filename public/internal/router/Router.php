@@ -15,8 +15,9 @@ class Router {
         $this->addRoute("GET", $pattern, $handler);
     }
 
-    // TODO POST, PUT, DELETE
-    // get the body / headers for the request
+    public function post($pattern, $handler) {
+        $this->addRoute("POST", $pattern, $handler);
+    }
 
     public function run() {
         $path = $this->getRequestPath();
@@ -45,6 +46,7 @@ class Router {
             $request = new Request();
             $request->setPath($path);
             $request->setQueryParameters($this->getQueryParameters());
+            $request->setBody($this->getRequestBody());
             $response = new Response();
             $this->runMiddlewares($request, $response);
             return $response->isSent()
@@ -90,6 +92,13 @@ class Router {
         $query = array();
         parse_str($_SERVER["QUERY_STRING"], $query);
         return $query;
+    }
+
+    private function getRequestBody() {
+        // TODO get body if method is PUT
+        // and / or content type is other than 
+        // application/x-www-form-urlencoded or multipart/form-data
+        return $_POST;
     }
 
     private function getRequestMethod() {

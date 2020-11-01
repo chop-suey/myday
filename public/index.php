@@ -10,20 +10,29 @@ $router->use(function($request, $response) {
     }
 });
 
-$router->get("/hello", function($request, $response) {
-    $name = $request->getQueryParameter("name");
-    $response->send("Hello $name");
+$router->get("/?", function($request, $response) {
+    $response->redirect("/calendar");
 });
 
 $router->get("/login", function($request, $response) {
     $response->send("login");
 });
 
-$router->get("/test/(\w+)", function($request, $response) {
-    ob_start();
-    var_dump($request);
-    $content = ob_get_clean();
-    $response->send($content);
+$router->post("/login", function($request, $response) {
+    $response->send("login post");
+});
+
+$router->get("/logout", function($request, $response) {
+
+});
+
+$router->get("/calendar", function($request, $response) {
+    $name = $request->getQueryParameter("name");
+    $response->send("Hello $name");
+});
+
+$router->get("/calendar/(\d{4}-\d{2}-\d{2})/?", function($request, $response) {
+
 });
 
 $router->run();
