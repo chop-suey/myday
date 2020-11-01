@@ -1,9 +1,19 @@
 <?php
 class Request {
+    private $path;
     private $headers;
     private $query;
     private $parameters;
     private $body;
+
+    /**
+     * Set the request path. Subsequent calls have no effect.
+     */
+    public function setPath($path) {
+        if (!$this->path) {
+            $this->path = $path;
+        }
+    }
 
     /**
      * Set the request query Parameters. Subsequent calls have no effect.
@@ -39,6 +49,10 @@ class Request {
         if (!$this->body) {
             $this->body = $body;
         }
+    }
+
+    public function getPath() {
+        return $this->path;
     }
 
     public function getBody() {

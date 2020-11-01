@@ -29,10 +29,10 @@ class Router {
             $index = array_search($method, $allowedMethods);
             $response = $index === FALSE
                 ? $this->getNotAllowedMethodResponse($allowedMethods)
-                : $this->handleRoute($this->routes[$index]);
+                : $this->handleRoute($path, $this->routes[$index]);
             $this->sendResponse($response);
         } else {
-            $this->sendResponse($this->getErrorResponse(404, "Not found"));
+            $this->sendResponse($this->getErrorResponse(404));
         }
     }
 
@@ -40,9 +40,10 @@ class Router {
         array_push($this->routes, new Route($method, $pattern, $handler));
     }
 
-    private function handleRoute($route) {
+    private function handleRoute($path, $route) {
         try {
             $request = new Request();
+            $request->setPath($path);
             $request->setQueryParameters($this->getQueryParameters());
             $response = new Response();
             $this->runMiddlewares($request, $response);
@@ -50,7 +51,8 @@ class Router {
                 ? $response
                 : $route->handle($request, $response);
         } catch (Exception $e) {
-            return $this->getErrorResponse(500, $e->getMessage());
+            error_log($e);
+            return $this->getErrorResponse(500);
         } 
     }
 
@@ -68,15 +70,14 @@ class Router {
 
     private function getNotAllowedMethodResponse($allowedMethods) {
         $methods = array_unique($allowedMethods);
-        $response = $this->getErrorResponse(405, "Method not allowed");
+        $response = $this->getErrorResponse(405);
         $response->setHeader("Allow", implode(", ", $methods));
         return $response;
     }
 
-    private function getErrorResponse($code, $message) {
+    private function getErrorResponse($code, $message = NULL) {
         $response = new Response();
-        $response->setCode($code);
-        $response->send($message);
+        $response->sendHttpStatus($code, $message);
         return $response;
     }
 
@@ -105,11 +106,20 @@ class Router {
     }
 
     private function sendResponse($response) {
+        $this->checkAndSendRedirect($response);
         http_response_code($response->getCode());
         foreach($response->getHeaders() as $header) {
             header($header);
         }
         echo $response->getBody() ? $response->getBody() : "";
+    }
+
+    private function checkAndSendRedirect($response) {
+        if ($response->isRedirect()) {
+            $redirectPath = $response->getRedirectPath();
+            header("Location: $redirectPath", TRUE, 303);
+            exit();
+        }
     }
 }
 ?>
