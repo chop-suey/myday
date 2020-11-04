@@ -20,7 +20,7 @@ class Route {
     } 
     
     public function match($path) {
-        $match = preg_match("#$this->pattern#", $path, $this->parameters) === 1;
+        $match = preg_match("#^$this->pattern$#", $path, $this->parameters) === 1;
         if ($match) {
             array_shift($this->parameters);
         }
